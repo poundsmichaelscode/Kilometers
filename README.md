@@ -2,22 +2,25 @@
 
 Smart mobility and journey planning platform.
 
-This repository is a **structure-only starter** for the web frontend, Django REST backend, and mobile app. No application features are implemented yet.
+Structure-only monorepo for the **web frontend**, **Django backend**, and **mobile app**.
 
-## Workspace layout
+## Workspace
+- `apps/web` — Next.js / TypeScript (planned)
+- `apps/backend` — Django / Django REST Framework (planned)
+- `apps/mobile` — React Native / Expo (planned)
+- `packages/shared-types` — shared API contracts and types (planned)
+- `packages/ui` — shared design guidance (planned)
+- `infra/docker` — local development infrastructure
+- `infra/deployment` — hosting and release notes
+- `docs` — project, API, and architecture documentation
+- `.github/workflows` — future CI pipelines
 
-- `apps/web` — web frontend (planned: Next.js + TypeScript)
-- `apps/mobile` — mobile app (planned: React Native + Expo)
-- `apps/backend` — Python backend (planned: Django + Django REST Framework)
-- `packages` — shared types, UI conventions and configuration
-- `infra` — Docker/deployment placeholders
-- `docs` — architecture, API and team documentation
-- `.github/workflows` — CI workflow placeholders
+**This commit creates folders and placeholder files only.** No app is installed, runnable, or deployed yet.
 
-## Getting started
+## Collaborating
+1. Clone the repository.
+2. Create a branch such as `feat/web-setup`, `feat/backend-setup`, or `feat/mobile-setup`.
+3. Initialize your own app within its assigned folder.
+4. Open a pull request for review before merging.
 
-Each team can initialize its own app inside the corresponding directory once the stack choices are confirmed. Do not commit `.env` files, credentials, build products or virtual environments.
-
-## Current status
-
-Scaffold only — no running web, backend, or mobile application yet.
+Keep secrets in local `.env` files, never in Git.
