@@ -1,0 +1,53 @@
+name: Deploy Web MVP (manual, gated)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Deployment target
+        required: true
+        type: choice
+        options:
+          - web
+          - backend
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kilometer-deploy-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.target }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require initialized app and deployment hook
+        env:
+          WEB_DEPLOY_HOOK: ${{ secrets.WEB_DEPLOY_HOOK }}
+          BACKEND_DEPLOY_HOOK: ${{ secrets.BACKEND_DEPLOY_HOOK }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          if [ "$TARGET" = web ]; then
+            test -f apps/web/package.json || { echo "::error::Web app not initialized"; exit 1; }
+            test -n "$WEB_DEPLOY_HOOK" || { echo "::error::WEB_DEPLOY_HOOK secret not configured"; exit 1; }
+          else
+            test -f apps/backend/manage.py || { echo "::error::Backend app not initialized"; exit 1; }
+            test -n "$BACKEND_DEPLOY_HOOK" || { echo "::error::BACKEND_DEPLOY_HOOK secret not configured"; exit 1; }
+          fi
+      - name: Trigger approved hosting deployment
+        env:
+          WEB_DEPLOY_HOOK: ${{ secrets.WEB_DEPLOY_HOOK }}
+          BACKEND_DEPLOY_HOOK: ${{ secrets.BACKEND_DEPLOY_HOOK }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          if [ "$TARGET" = web ]; then
+            hook="$WEB_DEPLOY_HOOK"
+          else
+            hook="$BACKEND_DEPLOY_HOOK"
+          fi
+          curl --fail --silent --show-error --location --max-time 60 --retry 2 --request POST "$hook" >/dev/null
+          echo "Deployment triggered for $TARGET; verify completion in your hosting provider."
