@@ -1,3 +1,3 @@
-# Shared contracts
+# Shared API contracts
 
-Reserved for documented request/response shapes shared between web and mobile. Backend Python schemas remain owned by the backend team.
+Reserved for request and response contracts shared by the **web frontend** and backend. Python data validation remains in the backend.

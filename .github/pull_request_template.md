@@ -1,11 +1,15 @@
 ## Summary
 
 ## Area
-- [ ] Web
-- [ ] Backend
-- [ ] Mobile
-- [ ] Shared / Infrastructure / Documentation
+- [ ] Web frontend
+- [ ] Backend — foundation/auth
+- [ ] Backend — journeys/maps
+- [ ] Backend — transit
+- [ ] Backend — traffic/assistant
+- [ ] Infrastructure / docs
 
-## Verification
+## Verification and tests
+
+## API contract or migration changes
 
 ## Notes for reviewers

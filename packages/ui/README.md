@@ -1,3 +1,3 @@
-# Shared UI guidance
+# Web UI guidelines
 
-Reserved for design tokens and reusable specifications. React Native components and web components may require separate implementations.
+Reserved for design tokens, accessibility guidelines and reusable **web** UI conventions for the responsive MVP.
