@@ -1,0 +1,53 @@
+services:
+
+  backend:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile
+
+    container_name: kilometers-backend
+    restart: unless-stopped
+
+    command: python manage.py runserver 0.0.0.0:8000
+
+    volumes:
+      - ../../apps/backend:/app
+
+    ports:
+      - "127.0.0.1:8010:8000"
+
+    env_file:
+      - ../../apps/backend/.env
+
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: kilometers-postgis
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: kilometers
+      POSTGRES_USER: kilometers
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+
+    ports:
+      - "127.0.0.1:5544:5432"
+
+    volumes:
+      - kilometers_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kilometers -d kilometers"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  kilometers_postgres_data:

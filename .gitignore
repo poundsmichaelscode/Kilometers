@@ -30,3 +30,7 @@ media/
 
 # Logs
 *.log
+
+# Local Django configuration
+apps/backend/.env
+apps/backend/config/settings.py.local-backup
