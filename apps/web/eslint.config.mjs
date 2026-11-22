@@ -6,7 +6,7 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   // Override default ignores of eslint-config-next.
-  globalIgnores(["public/vendor/maplibre/**", 
+  globalIgnores(["public/vendor/maplibre/**",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",

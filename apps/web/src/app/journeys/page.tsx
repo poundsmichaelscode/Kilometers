@@ -52,10 +52,10 @@ export default function JourneysPage() {
     <div
       className="km-background min-h-screen"
     >
-      
+
 
       <div className="flex min-h-[calc(100dvh-3.5rem)]">
-        
+
 
         <main className="flex min-w-0 flex-1 flex-col lg:flex-row">
           <section className="w-full shrink-0 border-b border-slate-500/20 p-4 lg:w-[370px] lg:overflow-y-auto lg:border-r lg:border-b-0 xl:w-[390px]">

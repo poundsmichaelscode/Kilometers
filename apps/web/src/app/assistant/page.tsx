@@ -57,9 +57,9 @@ export default function AssistantPage() {
 
   return (
     <div className="km-assistant min-h-screen">
-      
 
-      
+
+
 
       <main className="px-4 pb-10 pt-6">
         <div className="mx-auto max-w-[690px]">
@@ -284,7 +284,7 @@ export default function AssistantPage() {
         </div>
       </main>
 
-      
+
     </div>
   );
 }

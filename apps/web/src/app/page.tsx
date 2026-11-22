@@ -37,7 +37,7 @@ const features = [
 export default function Home() {
   return (
     <main className="min-h-screen km-background">
-      
+
 
       <div className="mx-auto max-w-7xl px-5 py-16">
         <div className="max-w-3xl">
