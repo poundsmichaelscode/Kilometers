@@ -30,3 +30,16 @@ media/
 
 # Logs
 *.log
+<<<<<<< Updated upstream
+=======
+
+# Local Django configuration
+apps/backend/.env
+apps/backend/config/settings.py.local-backup
+/kilometers-next-temp/
+/apps/web/public/vendor/maplibre/
+/apps/web/.next/
+/apps/web/node_modules/
+/apps/web/.env.local
+>>>>>>> Stashed changes
+*.local-backup
