@@ -1,0 +1,305 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ========================================
+   KILOMETER GLOBAL APPEARANCE SYSTEM
+   ======================================== */
+
+:root,
+html[data-theme="light"] {
+  --km-bg: #f3f5f7;
+  --km-surface: #ffffff;
+  --km-text: #101b30;
+  --km-muted: #536174;
+  --km-muted-bg: #ebeff3;
+  --km-border: #dfe5eb;
+  --km-active: #101b30;
+  --km-active-text: #ffffff;
+  --km-green: #16c47f;
+}
+
+html[data-theme="dark"] {
+  --km-bg: #0c1422;
+  --km-surface: #141d2e;
+  --km-text: #eef3f9;
+  --km-muted: #a7b3c5;
+  --km-muted-bg: #202c43;
+  --km-border: #28364b;
+  --km-active: #eef3f9;
+  --km-active-text: #101b30;
+  --km-green: #16c47f;
+}
+
+html body {
+  background: var(--km-bg);
+  color: var(--km-text);
+}
+
+.km-background,
+.km-assistant {
+  background: var(--km-bg);
+  color: var(--km-text);
+}
+
+.km-surface {
+  background: var(--km-surface);
+  border-color: var(--km-border);
+  color: var(--km-text);
+}
+
+.km-muted {
+  color: var(--km-muted);
+}
+
+.km-muted-surface {
+  background: var(--km-muted-bg);
+  border-color: var(--km-border);
+  color: var(--km-text);
+}
+
+.km-theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--km-muted-bg);
+}
+
+.km-theme-button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--km-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.km-theme-button.active {
+  background: var(--km-active);
+  color: var(--km-active-text);
+}
+
+.km-theme-button:focus-visible {
+  outline: 2px solid var(--km-green);
+  outline-offset: 2px;
+}
+
+.km-assistant input::placeholder {
+  color: var(--km-muted);
+}
+
+
+/* KILOMETER assistant global theme correction */
+
+html[data-theme="dark"] .km-assistant {
+  --km-bg: #0c1422;
+  --km-surface: #141d2e;
+  --km-text: #eef3f9;
+  --km-muted: #a7b3c5;
+  --km-muted-bg: #202c43;
+  --km-border: #28364b;
+  --km-active: #eef3f9;
+  --km-active-text: #101b30;
+
+  background-color: var(--km-bg);
+  color: var(--km-text);
+}
+
+html[data-theme="light"] .km-assistant {
+  --km-bg: #f3f5f7;
+  --km-surface: #ffffff;
+  --km-text: #101b30;
+  --km-muted: #536174;
+  --km-muted-bg: #ebeff3;
+  --km-border: #dfe5eb;
+  --km-active: #101b30;
+  --km-active-text: #ffffff;
+
+  background-color: var(--km-bg);
+  color: var(--km-text);
+}
+
+.km-assistant .km-surface {
+  background-color: var(--km-surface);
+  color: var(--km-text);
+  border-color: var(--km-border);
+}
+
+.km-assistant .km-muted-surface {
+  background-color: var(--km-muted-bg);
+  color: var(--km-text);
+  border-color: var(--km-border);
+}
+
+.km-assistant .km-muted {
+  color: var(--km-muted);
+}
+
+.km-assistant .km-theme-switcher {
+  background-color: var(--km-muted-bg);
+}
+
+.km-assistant .km-theme-button.active {
+  background-color: var(--km-active);
+  color: var(--km-active-text);
+}
+
+.km-assistant input {
+  color: var(--km-text);
+}
+
+.km-assistant input::placeholder {
+  color: var(--km-muted);
+}
+
+
+/* KILOMETER shared navigation */
+
+.km-nav-active {
+  color: #047857;
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .km-nav-active {
+  color: #34d399;
+}
+
+.km-nav-active:hover {
+  opacity: 0.85;
+}
+
+/* KILOMETER application layout */
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.km-background,
+.km-assistant {
+  min-width: 0;
+}
+
+.km-background button,
+.km-assistant button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.km-background input,
+.km-assistant input {
+  color: var(--km-text);
+}
+
+.km-background input::placeholder {
+  color: var(--km-muted);
+}
+
+/* Hide horizontal scrollbar on journey filters */
+
+.km-background .overflow-x-auto {
+  scrollbar-width: none;
+}
+
+.km-background .overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
+/* Keyboard accessibility */
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #16c47f;
+  outline-offset: 3px;
+}
+
+
+/* KILOMETER map appearance */
+
+.km-map-canvas .maplibregl-canvas {
+  filter: none;
+  transition: filter 180ms ease;
+}
+
+html[data-theme="dark"] .km-map-canvas .maplibregl-canvas {
+  filter: invert(100%)
+          hue-rotate(180deg)
+          brightness(85%)
+          contrast(90%);
+}
+
+html[data-theme="dark"] .maplibregl-ctrl-group {
+  background: var(--km-surface);
+}
+
+html[data-theme="dark"] .maplibregl-ctrl-group button {
+  filter: invert(100%);
+}
+
+html[data-theme="dark"] .maplibregl-popup-content {
+  background: var(--km-surface);
+  color: var(--km-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-map-canvas .maplibregl-canvas {
+    transition: none;
+  }
+}
+
+/* KILOMETER traffic map markers */
+
+.km-incident-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 3px solid white;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 25%);
+  cursor: pointer;
+}
+
+.km-incident-marker:hover {
+  outline: 3px solid rgb(255 255 255 / 40%);
+}
+

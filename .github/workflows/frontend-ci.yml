@@ -15,54 +15,56 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frontend:
-    name: Web lint, test and build
+    name: Web lint, typecheck, test and build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     defaults:
       run:
         working-directory: apps/web
+
+    env:
+      CI: "true"
+      NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8010/api/v1
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Detect web app
-        id: detect
-        run: |
-          if [ -f package.json ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Web app not initialized yet. Frontend checks not run."
-          fi
-      - uses: actions/setup-node@v4
-        if: steps.detect.outputs.present == 'true'
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
-      - name: Require lockfile and test scripts
-        if: steps.detect.outputs.present == 'true'
-        run: |
-          test -f package-lock.json || { echo "::error::Commit apps/web/package-lock.json"; exit 1; }
-          node -e "const s=require('./package.json').scripts||{};for(const x of ['lint','test','build']) if(!s[x]) {console.error('Missing npm script: '+x);process.exitCode=1}"
+
       - name: Install dependencies
-        if: steps.detect.outputs.present == 'true'
         run: npm ci
-      - name: Lint
-        if: steps.detect.outputs.present == 'true'
-        run: npm run lint
-      - name: Test
-        if: steps.detect.outputs.present == 'true'
-        env:
-          CI: "true"
-        run: npm test -- --run
-      - name: Build
-        if: steps.detect.outputs.present == 'true'
+
+      - name: Strict lint validation
+        run: npm run lint -- --max-warnings=0
+
+      - name: Automated tests
+        run: npm test
+
+      - name: Production build
         run: npm run build
-      - name: Summary
-        if: always()
+
+      - name: TypeScript validation
+        run: npm run typecheck
+
+      - name: Validation summary
+        if: success()
         run: |
-          if [ "${{ steps.detect.outputs.present }}" = "true" ]; then
-            echo "Web app detected; review step statuses above." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Web app not initialized: CI scaffold only, **no tests executed**." >> "$GITHUB_STEP_SUMMARY"
-          fi
+          echo "## Frontend CI passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Dependency installation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Strict ESLint validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- TypeScript validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Automated frontend tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Production build" >> "$GITHUB_STEP_SUMMARY"
