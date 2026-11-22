@@ -165,6 +165,9 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": "60/min",
         "user": "120/min",
+        "registration": "5/hour",
+        "login": "5/min",
+        "token_refresh": "20/min",
     },
 }
 

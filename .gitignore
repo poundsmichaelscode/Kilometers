@@ -34,3 +34,19 @@ media/
 # Local Django configuration
 apps/backend/.env
 apps/backend/config/settings.py.local-backup
+
+# Next.js frontend
+apps/web/node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/.env.local
+apps/web/.env.*.local
+apps/web/tsconfig.tsbuildinfo
+
+# Generated MapLibre worker assets
+/apps/web/public/vendor/maplibre/
+
+/kilometers-next-temp/
+*.local-backup
+.env.production
+.env.production.local

@@ -9,3 +9,6 @@ __pycache__/
 *.sqlite3
 coverage/
 htmlcov/
+
+*.local-backup
+**/*.local-backup

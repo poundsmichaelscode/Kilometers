@@ -4,21 +4,29 @@ on:
   pull_request:
     paths:
       - 'apps/backend/**'
+      - 'infra/docker/**'
       - '.github/workflows/backend-ci.yml'
   push:
     branches: [main]
     paths:
       - 'apps/backend/**'
+      - 'infra/docker/**'
       - '.github/workflows/backend-ci.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
-    name: Django checks and tests (PostGIS)
+    name: Django checks, migrations and tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     services:
       postgres:
         image: postgis/postgis:16-3.4
@@ -33,61 +41,79 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
+
     env:
-      DATABASE_URL: postgis://kilometer:kilometer_ci_only@127.0.0.1:5432/kilometer_test
-      DJANGO_SECRET_KEY: ci-only-not-for-production-change-me
-      SECRET_KEY: ci-only-not-for-production-change-me
-      DEBUG: 'False'
-      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      DJANGO_SECRET_KEY: ci-only-not-for-production-kilometer-validation-key
+      DJANGO_DEBUG: 'False'
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      POSTGRES_DB: kilometer_test
+      POSTGRES_USER: kilometer
+      POSTGRES_PASSWORD: kilometer_ci_only
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: '5432'
       CI: 'true'
+
     defaults:
       run:
         working-directory: apps/backend
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Detect Django app
-        id: detect
-        run: |
-          if [ -f manage.py ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Django project not initialized yet. Backend checks not run."
-          fi
-      - uses: actions/setup-python@v5
-        if: steps.detect.outputs.present == 'true'
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: apps/backend/requirements*.txt
-      - name: Install system dependencies
-        if: steps.detect.outputs.present == 'true'
-        run: sudo apt-get update && sudo apt-get install -y gdal-bin libgdal-dev libgeos-dev
-      - name: Install backend dependencies
-        if: steps.detect.outputs.present == 'true'
+
+      - name: Install GIS system dependencies
         run: |
-          if [ -f requirements-dev.txt ]; then
-            python -m pip install -r requirements-dev.txt
-          elif [ -f requirements.txt ]; then
-            python -m pip install -r requirements.txt
-          else
-            echo "::error::Add requirements.txt or requirements-dev.txt"; exit 1
-          fi
-          python -m pip install pytest pytest-django
+          sudo apt-get update
+          sudo apt-get install -y \
+            binutils \
+            gdal-bin \
+            libgdal-dev \
+            libgeos-dev \
+            libproj-dev
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip check
+
+      - name: Verify database connectivity
+        run: |
+          python manage.py shell -c \
+            "from django.db import connection; c = connection.cursor(); c.execute('SELECT PostGIS_Version()'); print(c.fetchone()[0]); c.close()"
+
       - name: Django system checks
-        if: steps.detect.outputs.present == 'true'
         run: python manage.py check
-      - name: Migrations are up to date
-        if: steps.detect.outputs.present == 'true'
+
+      - name: Check migration consistency
         run: python manage.py makemigrations --check --dry-run
-      - name: Run tests
-        if: steps.detect.outputs.present == 'true'
-        run: python -m pytest -q
-      - name: Summary
-        if: always()
+
+      - name: Apply database migrations
+        run: python manage.py migrate --noinput
+
+      - name: Run Django automated tests
+        run: python manage.py test --verbosity 2 --noinput
+
+      - name: Generate OpenAPI schema
         run: |
-          if [ "${{ steps.detect.outputs.present }}" = "true" ]; then
-            echo "Django app detected; review step statuses above." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Django app not initialized: CI scaffold only, **no tests executed**." >> "$GITHUB_STEP_SUMMARY"
-          fi
+          python manage.py spectacular \
+            --file /tmp/kilometer-openapi.yaml \
+            --validate --fail-on-warn
+
+      - name: Validation summary
+        if: success()
+        run: |
+          echo "## Backend CI passed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Python dependency validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- PostgreSQL/PostGIS connectivity" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Django system checks" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Database migration validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Automated backend tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "- OpenAPI schema generation" >> "$GITHUB_STEP_SUMMARY"
