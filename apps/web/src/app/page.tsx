@@ -14,7 +14,7 @@ const features = [
       "Explore journey options, maps, transport modes and route details across Lagos.",
     href: "/journeys",
     icon: Route,
-    status: "Available",
+    status: "Demo available",
   },
   {
     title: "Traffic Reports",
@@ -22,7 +22,7 @@ const features = [
       "Explore reported road incidents and traffic conditions.",
     href: "/reports",
     icon: TrafficCone,
-    status: "Coming next",
+    status: "Demo available",
   },
   {
     title: "AI Travel Assistant",
@@ -30,7 +30,7 @@ const features = [
       "Ask questions about routes, transport and journey planning.",
     href: "/assistant",
     icon: Bot,
-    status: "Coming next",
+    status: "Demo available",
   },
 ];
 
@@ -105,7 +105,7 @@ export default function Home() {
                     {feature.description}
                   </p>
 
-                  {feature.status === "Available" ? (
+                  {feature.status === "Demo available" ? (
                     <Link
                       href={feature.href}
                       className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300"
