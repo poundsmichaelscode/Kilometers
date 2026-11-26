@@ -1,6 +1,8 @@
 # Journey comparison API contract
 
-`POST /api/v1/journeys/compare`  (JWT required; 401 without a token)
+`POST /api/v1/journeys/compare`  (public: no sign-in needed)
+
+Any Authorization header is ignored, so an expired token never causes a 401 here. Requests are limited to 30 per minute per client address; going over returns 429 with a `Retry-After` header. Account endpoints stay protected.
 
 Interactive docs: `/api/docs/`. Schema: `/api/schema/`.
 

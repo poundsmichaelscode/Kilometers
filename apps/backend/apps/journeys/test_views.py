@@ -1,11 +1,12 @@
 from unittest import mock
 
-from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from . import demo_data, engine
 from .serializers import CompareResponseSerializer
+from .views import CompareThrottle
 
 URL = "/api/v1/journeys/compare"
 LEKKI = {"lat": 6.4478, "lng": 3.4723, "label": "Lekki Phase 1"}
@@ -15,16 +16,25 @@ ABUJA = {"lat": 9.0765, "lng": 7.3986}
 
 class CompareEndpointTests(TestCase):
     def setUp(self):
+        cache.clear()  # throttle counters live in the cache
         self.client = APIClient()
-        self.user = get_user_model().objects.create_user(email="rider@example.com", password="SecureTestPassword@2026")
 
     def post(self, body):
-        self.client.force_authenticate(self.user)
         return self.client.post(URL, body, format="json")
 
-    def test_requires_login(self):
-        response = APIClient().post(URL, {"origin": LEKKI, "destination": IKEJA}, format="json")
-        self.assertEqual(response.status_code, 401)
+    def test_guest_can_compare_without_a_token(self):
+        response = self.post({"origin": LEKKI, "destination": IKEJA})
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_token_is_ignored_not_rejected(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer not-a-real-token")
+        response = self.post({"origin": LEKKI, "destination": IKEJA})
+        self.assertEqual(response.status_code, 200)
+
+    def test_guest_is_rate_limited(self):
+        with mock.patch.object(CompareThrottle, "rate", "2/min"):
+            statuses = [self.post({"origin": LEKKI, "destination": IKEJA}).status_code for _ in range(3)]
+        self.assertEqual(statuses, [200, 200, 429])
 
     def test_returns_tagged_options_and_demo_note(self):
         response = self.post({"origin": LEKKI, "destination": IKEJA})
