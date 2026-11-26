@@ -136,7 +136,8 @@ INSTALLED_APPS += [
     "drf_spectacular",
     "corsheaders",
     "apps.accounts",
-    "apps.journeys"
+    "apps.journeys",
+    "apps.transit",
 ]
 
 AUTH_USER_MODEL = "accounts.User"

@@ -31,6 +31,7 @@ from drf_spectacular.views import (
 urlpatterns += [
     path("api/v1/", include("apps.accounts.urls")),
     path("api/v1/", include("apps.journeys.urls")),
+    path("api/v1/", include("apps.transit.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
