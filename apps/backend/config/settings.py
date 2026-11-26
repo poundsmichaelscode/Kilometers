@@ -137,6 +137,7 @@ INSTALLED_APPS += [
     "drf_spectacular",
     "corsheaders",
     "apps.accounts",
+    "apps.journeys",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -169,6 +170,7 @@ REST_FRAMEWORK = {
         "registration": "5/hour",
         "login": "5/min",
         "token_refresh": "20/min",
+        "journey_compare": "30/min",
     },
 }
 
