@@ -11,6 +11,7 @@ WALK_DETOUR = 1.3  # straight-line to street-distance factor; shortcut: use prov
 MAX_WALK_TO_STOP_M = 1500
 MAX_TRANSFER_WALK_M = 400
 NEAREST_STOPS = 3
+MIN_WALK_LEG_M = 30
 DEFAULT_WAIT_MIN = {"bus": 10, "brt": 8, "rail": 15, "ferry": 20}
 DEFAULT_HOP_MIN = 3  # used when a RouteStop has no minutes_from_prev
 # Weakest to strongest trust; the weakest status on any leg is the option's confidence.
@@ -159,6 +160,8 @@ def compare(origin, destination, routes, car=None):
     best = {}  # one itinerary per route or route pair, the quickest
 
     def keep(key, legs):
+        # Drop walks under 30 m (for example a transfer at the same stop) so steps never say "Walk 0 m".
+        legs = [leg for leg in legs if not (leg["type"] == "walk" and leg["meters"] < MIN_WALK_LEG_M)]
         opt = _option(legs, [])
         if key not in best or opt["total_minutes"] < best[key]["total_minutes"]:
             best[key] = opt

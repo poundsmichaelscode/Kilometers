@@ -65,6 +65,11 @@ class EngineTests(unittest.TestCase):
         out = e.compare(ORIGIN, DEST, [r])
         self.assertIn("Some travel times are estimated.", out[0]["notes"])
 
+    def test_tiny_walks_are_dropped(self):
+        out = e.compare(A, D, [route(1, [A, D])])  # both points sit exactly on stops
+        self.assertEqual([leg["type"] for leg in out[0]["legs"]], ["ride"])
+        self.assertFalse(any("Walk about 0 m" in step for step in out[0]["steps"]))
+
     def test_no_routes_and_no_car_returns_empty(self):
         self.assertEqual(e.compare(ORIGIN, DEST, []), [])
 
