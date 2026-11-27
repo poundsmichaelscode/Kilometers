@@ -7,7 +7,7 @@ on:
       - 'infra/docker/**'
       - '.github/workflows/backend-ci.yml'
   push:
-    branches: [main]
+    branches: [main, feat/backend-journeys-integration]
     paths:
       - 'apps/backend/**'
       - 'infra/docker/**'
