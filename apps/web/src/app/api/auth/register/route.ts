@@ -87,10 +87,51 @@ export async function POST(request: NextRequest) {
     }
 
     if (response.status === 400) {
+      let errors: Record<string, unknown> = {};
+
+      try {
+        const data: unknown = await response.json();
+
+        if (data && typeof data === "object" && !Array.isArray(data)) {
+          errors = data as Record<string, unknown>;
+        }
+      } catch {
+        // Use the generic validation message below.
+      }
+
+      const messages: string[] = [];
+
+      for (const field of ["email", "password", "non_field_errors"]) {
+        const value = errors[field];
+
+        if (typeof value === "string") {
+          messages.push(value);
+        } else if (Array.isArray(value)) {
+          messages.push(
+            ...value.filter((item): item is string =>
+              typeof item === "string"
+            )
+          );
+        } else if (value && typeof value === "object") {
+          for (const nested of Object.values(value)) {
+            if (typeof nested === "string") {
+              messages.push(nested);
+            } else if (Array.isArray(nested)) {
+              messages.push(
+                ...nested.filter((item): item is string =>
+                  typeof item === "string"
+                )
+              );
+            }
+          }
+        }
+      }
+
       return NextResponse.json(
         {
           detail:
-            "Registration was not accepted. Check your email and password, including password strength.",
+            messages.join(" ") ||
+            "Registration was not accepted. Check your details.",
         },
         { status: 400 }
       );
