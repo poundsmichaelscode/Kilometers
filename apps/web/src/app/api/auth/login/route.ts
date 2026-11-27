@@ -71,14 +71,24 @@ export async function POST(request: NextRequest) {
     );
 
     if (!backend.ok) {
-      return NextResponse.json(
-        {
-          detail:
-            backend.status === 429
+      const status = backend.status;
+      const detail =
+        status === 400 || status === 401
+          ? "Incorrect email or password, or the account does not exist."
+          : status === 403
+            ? "Your account is not permitted to sign in."
+            : status === 429
               ? "Too many login attempts. Please try later."
-              : "Unable to sign in with those credentials.",
-        },
-        { status: backend.status }
+              : status === 404
+                ? "Authentication API route was not found. Check the backend URL configuration."
+                : "The authentication server returned an error. Please try again later.";
+
+      return NextResponse.json(
+        { detail },
+        {
+          status: [400, 401, 403, 429].includes(status) ? status : 502,
+          headers: { "Cache-Control": "no-store" },
+        }
       );
     }
 
