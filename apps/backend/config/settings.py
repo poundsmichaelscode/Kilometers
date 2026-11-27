@@ -96,8 +96,10 @@ if os.getenv("DATABASE_URL"):
         os.environ["DATABASE_URL"],
         conn_max_age=0,
     )
+    # The hosted MVP currently uses ordinary PostgreSQL.
+    # Switch to PostGIS once geographic models are introduced.
     DATABASES["default"]["ENGINE"] = (
-        "django.contrib.gis.db.backends.postgis"
+        "django.db.backends.postgresql"
     )
 
 # Django runs behind the hosting provider's HTTPS proxy.
