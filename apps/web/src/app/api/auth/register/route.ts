@@ -50,9 +50,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const baseUrl =
-    process.env.KILOMETER_API_SERVER_URL ??
-    "http://127.0.0.1:8010/api/v1";
+  const configuredUrl = process.env.KILOMETER_API_SERVER_URL;
+  const baseUrl = configuredUrl ??
+    (process.env.NODE_ENV === "production"
+      ? ""
+      : "http://127.0.0.1:8010/api/v1");
+
+  if (!baseUrl || (process.env.NODE_ENV === "production" && !baseUrl.startsWith("https://"))) {
+    return NextResponse.json(
+      { detail: "Registration is temporarily unavailable: backend configuration is missing." },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
+    );
+  }
 
   try {
     const response = await fetch(
@@ -65,7 +74,7 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({ email, password }),
         cache: "no-store",
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(90000),
       }
     );
 
@@ -141,10 +150,16 @@ export async function POST(request: NextRequest) {
       { detail: "Unable to create account." },
       { status: 502 }
     );
-  } catch {
+  } catch (error) {
+    const timedOut = error instanceof Error &&
+      (error.name === "TimeoutError" || error.name === "AbortError");
     return NextResponse.json(
-      { detail: "Unable to connect to the authentication service." },
-      { status: 503 }
+      {
+        detail: timedOut
+          ? "The authentication service is waking up or responding slowly. Please retry."
+          : "Unable to connect to the authentication service.",
+      },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
     );
   }
 }
