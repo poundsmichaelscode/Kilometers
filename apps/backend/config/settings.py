@@ -87,6 +87,24 @@ DATABASES = {
 }
 
 
+
+# Hosted PostgreSQL / PostGIS
+if os.getenv("DATABASE_URL"):
+    import dj_database_url
+
+    DATABASES["default"] = dj_database_url.parse(
+        os.environ["DATABASE_URL"],
+        conn_max_age=0,
+    )
+    DATABASES["default"]["ENGINE"] = (
+        "django.contrib.gis.db.backends.postgis"
+    )
+
+# Django runs behind the hosting provider's HTTPS proxy.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
