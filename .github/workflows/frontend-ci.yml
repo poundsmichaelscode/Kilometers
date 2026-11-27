@@ -6,7 +6,7 @@ on:
       - 'apps/web/**'
       - '.github/workflows/frontend-ci.yml'
   push:
-    branches: [main]
+    branches: [main, feat/web-complete-mvp]
     paths:
       - 'apps/web/**'
       - '.github/workflows/frontend-ci.yml'
