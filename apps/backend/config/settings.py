@@ -167,9 +167,19 @@ MIDDLEWARE.insert(
     "corsheaders.middleware.CorsMiddleware",
 )
 
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "https://kilometers-web.vercel.app",
+).rstrip("/")
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    FRONTEND_URL,
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_URL,
 ]
 
 REST_FRAMEWORK = {
