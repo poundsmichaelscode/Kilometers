@@ -42,9 +42,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const baseUrl =
-    process.env.KILOMETER_API_SERVER_URL ??
-    "http://127.0.0.1:8010/api/v1";
+  const configuredUrl = process.env.KILOMETER_API_SERVER_URL;
+  const baseUrl = configuredUrl ??
+    (process.env.NODE_ENV === "production"
+      ? ""
+      : "http://127.0.0.1:8010/api/v1");
+
+  if (!baseUrl || (process.env.NODE_ENV === "production" && !baseUrl.startsWith("https://"))) {
+    return NextResponse.json(
+      { detail: "Sign in is temporarily unavailable: backend configuration is missing." },
+      { status: 503 }
+    );
+  }
 
   try {
     const backend = await fetch(
@@ -57,6 +66,7 @@ export async function POST(request: NextRequest) {
           password: body.password,
         }),
         cache: "no-store",
+        signal: AbortSignal.timeout(90000),
       }
     );
 
